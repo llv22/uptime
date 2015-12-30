@@ -3,12 +3,22 @@ var config     = require('config');
 var semver     = require('semver');
 
 // configure mongodb
+// see: about http://theholmesoffice.com/mongoose-connection-best-practice/
 mongoose.connect(config.mongodb.connectionString || 'mongodb://' + config.mongodb.user + ':' + config.mongodb.password + '@' + config.mongodb.server +'/' + config.mongodb.database);
 mongoose.connection.on('error', function (err) {
   console.error('MongoDB error: ' + err.message);
   console.error('Make sure a mongoDB server is running and accessible by this application');
   process.exit(1);
 });
+
+
+mongoose.connection.on('connected', function (err) {
+  //see: http://snoopyxdy.blog.163.com/blog/static/60117440201192841649337/
+  //see: https://nodejs.org/api/process.html#process_process_pid
+  console.log('DEAMON_PROCESS_ID - ' + process.pid);
+});
+
+
 mongoose.connection.on('open', function (err) {
   mongoose.connection.db.admin().serverStatus(function(err, data) {
     if (err) {
